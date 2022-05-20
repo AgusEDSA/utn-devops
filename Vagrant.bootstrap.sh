@@ -37,14 +37,14 @@ fi
 # ruta raíz del servidor web
 APACHE_ROOT="/var/www"
 # ruta de la aplicación
-APP_PATH="$APACHE_ROOT/utn-devops-app"
+APP_PATH="$APACHE_ROOT/UTN-devops-app"
 
 # descargo la app del repositorio
 if [ ! -d "$APP_PATH" ]; then
 	sudo mkdir /var/www
 	echo "clono el repositorio"
 	cd $APACHE_ROOT
-	sudo git clone https://github.com/Fichen/utn-devops-app.git
+	sudo git clone https://github.com/AgusEDSA/UTN-devops-app.git
 	cd $APP_PATH
 	sudo git checkout unidad-2
 fi
