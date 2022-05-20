@@ -5,8 +5,19 @@
 # Actualizo los paquetes de la maquina virtual
 sudo apt-get update
 
-# Instalo un servidor web
-sudo apt-get install -y apache2
+#Desintalo el servidor web instalado previamente en la unidad 1
+if [ -x "$(command -v apache2)" ];then
+	sudo apt-get remove --purge apache2 -y
+	sudo apt autoremove -y
+fi
+
+if [ ! -d "/var/db/mysql" ]; then
+	sudo mkdir -p /var/db/mysql
+fi
+
+if [ -f "/tmp/ufw" ]; then
+	sudo mv -f /tmp/ufw /etc/default/ufw
+fi
 
 ### Configuración del entorno ###
 
@@ -23,33 +34,37 @@ if [ ! -f "/swapdir/swapfile" ]; then
 	echo vm.swappiness = 10 | sudo tee -a /etc/sysctl.conf
 fi
 
-## configuración servidor web
-#copio el archivo de configuración del repositorio en la configuración del servidor web
-if [ -f "/tmp/devops.site.conf" ]; then
-	echo "Copio el archivo de configuracion de apache"
-	sudo mv /tmp/devops.site.conf /etc/apache2/sites-available
-	#activo el nuevo sitio web
-	sudo a2ensite devops.site.conf
-	#desactivo el default
-	sudo a2dissite 000-default.conf
-	#refresco el servicio del servidor web para que tome la nueva configuración
-	sudo service apache2 reload
-fi
-
-## aplicación
-
 # ruta raíz del servidor web
 APACHE_ROOT="/var/www"
 # ruta de la aplicación
-APP_PATH="$APACHE_ROOT/UTN-devops-app"
+APP_PATH="$APACHE_ROOT/utn-devops-app"
 
 # descargo la app del repositorio
 if [ ! -d "$APP_PATH" ]; then
 	sudo mkdir /var/www
 	echo "clono el repositorio"
 	cd $APACHE_ROOT
-	sudo git clone https://github.com/AgusEDSA/UTN-devops-app.git
+	sudo git clone https://github.com/Fichen/utn-devops-app.git
 	cd $APP_PATH
-	sudo git checkout main
+	sudo git checkout unidad-2
 fi
 
+
+######## Instalacion de DOCKER ########
+if [ ! -x "$(command -v docker)" ]; then
+	sudo apt-get install -y apt-transport-https ca-certificates curl software-properties-common
+
+	##Configuramos el repositorio
+	curl -fsSL "https://download.docker.com/linux/ubuntu/gpg" > /tmp/docker_gpg
+	sudo apt-key add < /tmp/docker_gpg && sudo rm -f /tmp/docker_gpg
+	sudo add-apt-repository "deb [arch=amd64] https://download.docker.com/linux/ubuntu $(lsb_release -cs) stable"
+
+	#Actualizo los paquetes con los nuevos repositorios
+	sudo apt-get update -y
+
+	#Instalo docker desde el repositorio oficial
+	sudo apt-get install -y docker-ce docker-compose
+
+	#Lo configuro para que inicie en el arranque
+	sudo systemctl enable docker
+fi

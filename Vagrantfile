@@ -4,10 +4,8 @@ Vagrant.configure("2") do |config|
   config.vm.box = "ubuntu/xenial64"
 
 
-  config.vm.network "forwarded_port", guest: 80, host: 8080
-  config.vm.network "forwarded_port", guest: 3306, host: 4041
-  config.vm.network "forwarded_port", guest: 8080, host: 8090
-  config.vm.network "forwarded_port", guest: 4567, host: 4567
+  config.vm.network "forwarded_port", guest: 8080, host: 8080
+  config.vm.network "forwarded_port", guest: 4400, host: 4400
 
 
   config.vm.hostname = "utn-devops.localhost"
@@ -25,8 +23,7 @@ Vagrant.configure("2") do |config|
     vb.memory = "1024"
   end
 
-
-  config.vm.provision "file", source: "Configs/devops.site.conf", destination: "/tmp/devops.site.conf"
+  config.vm.provision "file", source: "hostConfigs/ufw", destination: "/tmp/ufw"
 
   config.vm.provision :shell, path: "Vagrant.bootstrap.sh", run: "always"
 
